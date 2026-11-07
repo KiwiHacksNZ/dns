@@ -28,6 +28,10 @@ touch anything.
 
 ## First time setup
 
+Already done on 2026-11-08: both zones are imported and `make plan` reports no
+changes. This section is kept as the record of how it was set up, and for
+anyone rebuilding it from scratch or adding another zone.
+
 Do these in order. Steps 1 and 2 are the only ones that need a human with
 Cloudflare admin access.
 

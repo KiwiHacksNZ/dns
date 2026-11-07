@@ -1,11 +1,17 @@
 # This directory is the source of truth for DNS
 
-It is EMPTY until someone runs `./scripts/bootstrap.sh`, which pulls the live
-Cloudflare records down into `kiwihacks.org.yaml` and `kiwihacks.com.yaml`.
+`kiwihacks.org.yaml` and `kiwihacks.com.yaml` were imported from Cloudflare on
+2026-11-08 by `./scripts/bootstrap.sh` and verified with `make plan`, which
+reported no changes. They are an exact mirror of the live zones.
 
 Do not hand write these files from scratch. octoDNS treats whatever is here as
 the complete desired state of the zone, so a record that is missing from these
-files is a record octoDNS will delete from Cloudflare. The first version of
-these files has to come from `octodns-dump` so it is an exact mirror.
+files is a record octoDNS will delete from Cloudflare.
 
-Once the dump is in, edit these files normally and open a pull request.
+To change DNS: edit the file, `make plan` to see the diff, then open a pull
+request. The plan workflow comments the exact record diff for a reviewer, and
+merging to main applies it.
+
+Trailing dots matter on CNAME, MX, NS and PTR values. An `octodns: cloudflare:
+proxied: true` block is the orange cloud: remove it and the origin IP becomes
+public.
