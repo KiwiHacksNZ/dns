@@ -1,8 +1,8 @@
 name: DNS plan
 
 # Runs on every pull request that touches DNS. Read only: it never writes to
-# Cloudflare. The diff is posted as a comment on the PR so a reviewer can see
-# exactly which records would change before anything is merged.
+# Cloudflare. The record diff is posted as a comment on the PR so a reviewer can
+# see exactly what would change before anything is merged.
 
 on:
   pull_request:
@@ -40,8 +40,11 @@ jobs:
         env:
           CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
         run: |
-          set -o pipefail
-          octodns-sync --config-file ./config.yaml 2>&1 | tee plan.txt
+          # octoDNS writes two plan outputs on two streams, see the
+          # plan_outputs block in config.yaml. The readable log goes to stderr
+          # and lands in this job log. The markdown table goes to stdout, which
+          # we capture here for the PR comment.
+          octodns-sync --config-file ./config.yaml > plan.md
 
       - name: Comment the plan on the PR
         if: always()
@@ -49,19 +52,71 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            let body = '';
+            const MARKER = '<!-- octodns-plan -->';
+
+            let plan = '';
             try {
-              body = fs.readFileSync('plan.txt', 'utf8');
+              plan = fs.readFileSync('plan.md', 'utf8').trim();
             } catch (e) {
-              body = 'The plan step produced no output. Check the job log.';
+              plan = '';
             }
-            const max = 60000;
-            if (body.length > max) {
-              body = body.slice(0, max) + '\n\n[truncated, see the job log for the rest]';
+
+            const failed = ${{ steps.plan.outcome == 'failure' }};
+
+            let body;
+            if (failed) {
+              body = [
+                MARKER,
+                '### octoDNS plan failed',
+                '',
+                'The plan could not be produced, so there is nothing to review yet.',
+                'Check the job log for the error. Nothing has been changed in Cloudflare.',
+              ].join('\n');
+            } else if (!plan) {
+              body = [
+                MARKER,
+                '### octoDNS plan',
+                '',
+                'No changes were planned. Both zones already match this branch.',
+              ].join('\n');
+            } else {
+              const max = 60000;
+              const table = plan.length > max
+                ? plan.slice(0, max) + '\n\n_[truncated, see the job log for the rest]_'
+                : plan;
+              body = [
+                MARKER,
+                '### octoDNS plan',
+                '',
+                table,
+                '',
+                '---',
+                'Nothing has been changed in Cloudflare. Merging this PR applies the above.',
+              ].join('\n');
             }
-            await github.rest.issues.createComment({
+
+            // Update the existing plan comment rather than adding a new one on
+            // every push, so a PR with several revisions stays readable.
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '### octoDNS plan\n\n```\n' + body + '\n```\n\nNothing has been changed in Cloudflare. Merging this PR applies it.',
+              per_page: 100,
             });
+            const existing = comments.find((c) => c.body && c.body.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
