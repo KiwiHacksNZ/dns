@@ -63,6 +63,13 @@ jobs:
 
             const failed = ${{ steps.plan.outcome == 'failure' }};
 
+            // PlanMarkdown prints its own "## No changes were planned" line
+            // rather than nothing at all, so check for that too, otherwise a
+            // clean PR gets a comment telling the reviewer to merge a diff
+            // that does not exist.
+            const noChanges =
+              !plan || plan.replace(/\s+/g, ' ').trim() === '## No changes were planned';
+
             let body;
             if (failed) {
               body = [
@@ -72,7 +79,7 @@ jobs:
                 'The plan could not be produced, so there is nothing to review yet.',
                 'Check the job log for the error. Nothing has been changed in Cloudflare.',
               ].join('\n');
-            } else if (!plan) {
+            } else if (noChanges) {
               body = [
                 MARKER,
                 '### octoDNS plan',
