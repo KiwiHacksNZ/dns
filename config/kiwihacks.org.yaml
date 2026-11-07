@@ -1,0 +1,234 @@
+---
+? ''
+: - octodns:
+      cloudflare:
+        auto-ttl: true
+        proxied: true
+    ttl: 300
+    type: A
+    value: 216.198.79.1
+  - octodns:
+      cloudflare:
+        auto-ttl: true
+    ttl: 300
+    type: MX
+    values:
+    - exchange: mx.zoho.com.
+      preference: 10
+    - exchange: mx2.zoho.com.
+      preference: 20
+    - exchange: mx3.zoho.com.
+      preference: 30
+  - octodns:
+      cloudflare:
+        auto-ttl: true
+    ttl: 300
+    type: TXT
+    values:
+    - _vercel vc-domain-verify=internal.kiwihacks.org,9853c18ba74f7172fc4c
+    - brevo-code:2cbf529454e8174b93ca0a086a72480e
+    - google-site-verification=2EUv-D2ILqSFpogZUseybnbfcmpn-gJ85ijcFaOLMEI
+    - google-site-verification=xm7GffdTxMM0ammMtcOBQlMNwHV2sByz1Yikj8lxLXE
+    - mailerlite-domain-verification=ac7e8348450312207a2953754c015bae0179b4ba
+    - mailerlite-domain-verification=b3abd8ed8d311c696c245315e5a081f52800c742
+    - v=spf1 a mx include:zohomail.com include:_spf.mlsend.com ~all
+    - zoho-verification=zb31946945.zmverify.zoho.com
+7on5dizal4shjod7w6uqphnahblyanzu._domainkey:
+  ttl: 600
+  type: CNAME
+  value: 7on5dizal4shjod7w6uqphnahblyanzu.dkim.amazonses.com.
+24bfcqbkhnwbawn7p6lqmven3zixcupr._domainkey:
+  ttl: 600
+  type: CNAME
+  value: 24bfcqbkhnwbawn7p6lqmven3zixcupr.dkim.amazonses.com.
+'*.nest':
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: uixie.porkbun.com.
+_acme-challenge:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  values:
+  - IXHBphAoxfZRG0v0OTJ_VXA7NlS_OzOBUIqE2tibcUw
+  - SZgb3MEvZAMlQIpyjC9hQNd8-bSg67Km2J10mj7HWao
+_dmarc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  value: v=DMARC1\; p=none\; rua=mailto:rua@dmarc.brevo.com
+_dmarc.kiwihacks.org:
+  ttl: 600
+  type: TXT
+  value: v=DMARC1\; p=none\;
+_loops-verification:
+  ttl: 600
+  type: TXT
+  value: e5d70b96ef43d06959481f65ffb4ae30f68a9bab5b4b91abb2b30a05c4a86217
+_vercel:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  values:
+  - vc-domain-verify=nova.kiwihacks.org,4f0f87d948361df31064
+  - vc-domain-verify=vote.kiwihacks.org,984d0df8c86c890d2691
+beacons:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: c317b363559a77cf.vercel-dns-017.com.
+brevo1._domainkey:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: b1.kiwihacks-org.dkim.brevo.com.
+brevo2._domainkey:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: b2.kiwihacks-org.dkim.brevo.com.
+envelope:
+- ttl: 600
+  type: MX
+  value:
+    exchange: feedback-smtp.us-east-1.amazonses.com.
+    preference: 0
+- ttl: 600
+  type: TXT
+  value: v=spf1 include:amazonses.com ~all
+host:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: prod_auth_kiwihacks.110463.xyz.
+internal:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: a3df2c116bde03ec.vercel-dns-017.com.
+kiwihacks._domainkey:
+  ttl: 600
+  type: TXT
+  value: v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC2rChUbJD7ec3hEIM/ZhUqeilPL1Cb2Et6ddnWZUxmkr5cxSpcoSwW1ZaLKpgh1m5Za92LsDdm49Q+HWqypuGv0z/MbdMWy6VpGSttnk0Ji+y+8DkgqnT0oAy7HLjsXHoCvIpw1vmTOvPEDuGzYSKjtH4xEUsJtHegsmkU95j44wIDAQAB
+link:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: c45fc11ca6c44872.vercel-dns-017.com.
+litesrv._domainkey:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: litesrv._domainkey.mlsend.com.
+nest:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: uixie.porkbun.com.
+nova:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 671aff34a0bd9086.vercel-dns-017.com.
+resend._domainkey.info:
+  ttl: 600
+  type: TXT
+  value: p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCmsHYuSiDcqE0ejf4CQNvLkPy1jwh/e0O8adMbs/NKiyuzGKMoIkGVvUdlZ2+OAH4kBYNiG0+SbJqWhY7FL/CIKcsPiT/D5N7nS8NYbvdgZ3XV44RqwIJF4lYrk4vKihaa012qg7z/fYTG9z4oZPCp95fYq4rPwPYsDbnmxwq5UQIDAQAB
+send.info:
+- ttl: 600
+  type: MX
+  value:
+    exchange: feedback-smtp.ap-northeast-1.amazonses.com.
+    preference: 0
+- ttl: 600
+  type: TXT
+  value: v=spf1 include:amazonses.com ~all
+sign:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: A
+  value: 161.33.91.153
+signup:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: b7cea4332e15216b.vercel-dns-017.com.
+slbps36b6cxqjfx2up4wd3cfr4h6bs7m._domainkey:
+  ttl: 600
+  type: CNAME
+  value: slbps36b6cxqjfx2up4wd3cfr4h6bs7m.dkim.amazonses.com.
+tysrtn75wuqniq77ghhnsqvrknmy3xyd._domainkey:
+  ttl: 600
+  type: CNAME
+  value: tysrtn75wuqniq77ghhnsqvrknmy3xyd.dkim.amazonses.com.
+vote:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 3ec24f900b1fc262.vercel-dns-017.com.
+www:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: cfd9ce597250cf63.vercel-dns-017.com.
+www.link:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: link.kiwihacks.org.
+zh3qjoybdxj7oke45mdfgvrx42exxt73._domainkey:
+  ttl: 600
+  type: CNAME
+  value: zh3qjoybdxj7oke45mdfgvrx42exxt73.dkim.amazonses.com.

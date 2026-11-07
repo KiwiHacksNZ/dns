@@ -1,0 +1,40 @@
+---
+# octoDNS manager config for the KiwiHacks zones.
+# Source of truth: the YAML files in ./config
+# Target: Cloudflare (both zones are on the jerry/delilah nameservers)
+
+manager:
+  max_workers: 2
+
+providers:
+  # The files in ./config are what we want the zones to look like.
+  config:
+    class: octodns.provider.yaml.YamlProvider
+    directory: ./config
+    default_ttl: 300
+    enforce_order: true
+
+  # Cloudflare is what the zones actually look like right now.
+  cloudflare:
+    class: octodns_cloudflare.CloudflareProvider
+    # API token, not the global API key. Scopes needed:
+    #   Zone / Zone / Read   and   Zone / DNS / Edit
+    # scoped to kiwihacks.org and kiwihacks.com only.
+    token: env/CLOUDFLARE_TOKEN
+    # We do not manage Cloudflare page rules here, so the token does not
+    # need page rule permissions. Leave this false.
+    pagerules: false
+    retry_count: 4
+
+zones:
+  kiwihacks.org.:
+    sources:
+      - config
+    targets:
+      - cloudflare
+
+  kiwihacks.com.:
+    sources:
+      - config
+    targets:
+      - cloudflare

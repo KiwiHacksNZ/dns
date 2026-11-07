@@ -1,0 +1,156 @@
+---
+? ''
+: - octodns:
+      cloudflare:
+        auto-ttl: true
+    ttl: 300
+    type: ALIAS
+    value: cfd9ce597250cf63.vercel-dns-017.com.
+  - ttl: 60
+    type: MX
+    value:
+      exchange: smtp.google.com.
+      preference: 1
+  - octodns:
+      cloudflare:
+        auto-ttl: true
+    ttl: 300
+    type: TXT
+    values:
+    - anthropic-domain-verification-mk7hhk=J1QHUaAq6moACSRYPOEwP62xj
+    - google-site-verification=8pcoYQ9V2W8-OnrcNNJFLS81_nBlQ69cq8x46v0xDjs
+    - v=spf1 include:_spf.google.com ~all
+_dmarc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  value: v=DMARC1\; p=none\;
+_vercel:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  values:
+  - vc-domain-verify=jumbotron.kiwihacks.com,f0a4313d168341ec4f79
+  - vc-domain-verify=kiwihacks.com,d6ee6e9a876fe9b03403
+  - vc-domain-verify=vote.kiwihacks.com,9a8fbe05c3f0f3182cb7
+  - vc-domain-verify=www.kiwihacks.com,c127d119a8fd7a5ab789
+account:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+beacons-infra:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+google._domainkey:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: TXT
+  value: v=DKIM1\;k=rsa\;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuRNxGoNgte3T1d1D8GyDlXP0OrWGa3VyPFPze815ZFuRI/AF6gzojbrYnmH60AKkY8HkNeLdTTlxm8HGMsfIUCbjQGnq7LLkigjwrjfDTbO2/UlQx0KJiHuge+1v9ZzLqleZrhC/1t0N2Ze3sIUMLcz0HX3Qq0x+W5Q3JSFZk+T/yAUI8fBThkGEcxFpdC2d/3KBRXPcNUBPTz/SZ2LAwNxzD2nZcYNr2PYiEHiVwJDMIsZlgGALggPx4JdbTNEraRoWZFs1KWRxCLlKhoEynr9tBSc33W8MieaZVTwyl+l/LLuRa6HvkzRL4yK5WgKw7fZNfCWMbShp/D4eXAP2cQIDAQAB
+jumbotron:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: CNAME
+  value: cda4f5fa338598fa.vercel-dns-017.com.
+mdm:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+nest:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+nocodb-infra:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+node-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
+panel-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
+podium-api-server-a:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+portainer-infra:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+redeploy-infra:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+sign:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+vote:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: CNAME
+  value: 3ec24f900b1fc262.vercel-dns-017.com.
+www:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: CNAME
+  value: cfd9ce597250cf63.vercel-dns-017.com.

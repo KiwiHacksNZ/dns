@@ -1,0 +1,45 @@
+name: DNS apply
+
+# Runs when DNS changes land on main. This is the only thing that writes to
+# Cloudflare. It is gated on the "dns" environment so a second pair of eyes can
+# be required in the repo settings if you want one.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'config/**'
+      - 'config.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dns-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: dns
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install octoDNS
+        run: pip install -r requirements.txt
+
+      - name: Plan (for the log)
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: octodns-sync --config-file ./config.yaml
+
+      - name: Apply
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: octodns-sync --config-file ./config.yaml --doit
