@@ -65,10 +65,6 @@ _dmarc:
   ttl: 300
   type: TXT
   value: v=DMARC1\; p=none\; rua=mailto:rua@dmarc.brevo.com
-_dmarc.kiwihacks.org:
-  ttl: 600
-  type: TXT
-  value: v=DMARC1\; p=none\;
 _loops-verification:
   ttl: 600
   type: TXT
