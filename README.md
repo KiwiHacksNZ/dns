@@ -122,6 +122,12 @@ podium:
 Trailing dots matter on CNAME, MX, NS and PTR values. octoDNS will tell you if
 you forget one.
 
+**Keep the names in alphabetical order.** The config sets `enforce_order: true`,
+so octoDNS refuses to load a zone file whose keys are out of order, with a
+`keys out of order: expected X got Y` error. Do not append a new record to the
+bottom of the file: insert it where it sorts. This is deliberate, it keeps the
+diffs on a 30 record file readable instead of scattering related changes.
+
 ### Cloudflare proxying (the orange cloud)
 
 A proxied record carries this in the YAML:

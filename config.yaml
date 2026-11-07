@@ -6,6 +6,22 @@
 manager:
   max_workers: 2
 
+  # Two plan outputs, deliberately on different streams.
+  #
+  # octoDNS's default plan output goes through the logger, which writes to
+  # stderr mixed in with the INFO chatter. That is fine to read in a terminal
+  # and useless in a PR comment, where the one line that matters ends up buried.
+  #
+  # So: the logger keeps the familiar block on stderr for local runs and the CI
+  # job log, and PlanMarkdown writes a clean table to stdout that CI can post as
+  # the comment on its own.
+  plan_outputs:
+    _logger:
+      class: octodns.provider.plan.PlanLogger
+      level: info
+    markdown:
+      class: octodns.provider.plan.PlanMarkdown
+
 providers:
   # The files in ./config are what we want the zones to look like.
   config:
