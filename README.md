@@ -6,8 +6,7 @@ DNS for `kiwihacks.org` and `kiwihacks.com` as code, managed with
 
 The point: every DNS change goes through a pull request, the diff is visible
 before it lands, and the history of who changed what is in git rather than in
-one person's Cloudflare dashboard. When KiwiHacks gets handed to the next
-generation, the zones come with it.
+one person's Cloudflare dashboard.
 
 ## How it fits together
 
@@ -27,13 +26,6 @@ touch anything.
 ---
 
 ## First time setup
-
-Already done on 2026-11-08: both zones are imported and `make plan` reports no
-changes. This section is kept as the record of how it was set up, and for
-anyone rebuilding it from scratch or adding another zone.
-
-Do these in order. Steps 1 and 2 are the only ones that need a human with
-Cloudflare admin access.
 
 ### 1. Create a Cloudflare API token
 
