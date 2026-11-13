@@ -3,6 +3,12 @@ name: DNS apply
 # Runs when DNS changes land on main. This is the only thing that writes to
 # Cloudflare. It is gated on the "dns" environment so a second pair of eyes can
 # be required in the repo settings if you want one.
+#
+# Right before it writes, it re-runs the Cloudflare drift check. The PR check is
+# a snapshot taken when the PR was checked, so a record added in the Cloudflare
+# dashboard after that and before the merge would otherwise be deleted here. If
+# Cloudflare has records the repo does not know about, this refuses to apply.
+# Merge the "Sync Cloudflare records" PR, then re-run.
 
 on:
   push:
@@ -11,6 +17,11 @@ on:
       - 'config/**'
       - 'config.yaml'
   workflow_dispatch:
+    inputs:
+      skip_drift_check:
+        description: 'Apply even if Cloudflare has records the repo does not (they will be deleted). Emergencies only, for example reverting an outage.'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -23,8 +34,20 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     environment: dns
+    env:
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+
+      # The commit main was on before this push. A record that is live but
+      # missing from both that commit and this one is new in Cloudflare. A
+      # record this push deliberately removes is in the old commit, so it is not
+      # flagged. A manual run has no "before", so it compares this commit with
+      # itself and refuses on any record the repo does not know about.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event.before && github.event.before != '0000000000000000000000000000000000000000') && github.event.before || github.sha }}
+          path: base
 
       - uses: actions/setup-python@v5
         with:
@@ -35,11 +58,25 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Plan (for the log)
-        env:
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
-        run: octodns-sync --config-file ./config.yaml
+        run: |
+          octodns-sync --config-file ./config.yaml > head-plan.md
+          cat head-plan.md
+
+      - name: Plan the previous commit against Cloudflare
+        working-directory: base
+        run: octodns-sync --config-file ./config.yaml > "$GITHUB_WORKSPACE/base-plan.md"
+
+      - name: Find Cloudflare records missing from the repo
+        id: drift
+        run: |
+          python3 scripts/check-new-cloudflare-records.py \
+            --base base-plan.md --head head-plan.md --out drift-comment.md
+
+      - name: Refuse to apply over unsynced records
+        if: steps.drift.outputs.found == 'true' && !inputs.skip_drift_check
+        run: |
+          echo "::error::Cloudflare has records that are not in the repo, and applying would delete them. They are listed above as 'unsynced'. Merge the 'Sync Cloudflare records' PR (or run it from the Actions tab), then re-run this workflow. In an emergency, re-run it manually with skip_drift_check ticked."
+          exit 1
 
       - name: Apply
-        env:
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
         run: octodns-sync --config-file ./config.yaml --doit

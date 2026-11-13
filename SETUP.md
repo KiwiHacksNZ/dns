@@ -6,6 +6,9 @@ config/kiwihacks.com.yaml
 config.yaml                 wiring: read from config/, write to Cloudflare
 .github/workflows/plan.yml  on every PR, show the record diff as a comment
 .github/workflows/apply.yml on merge to main, push the change to Cloudflare
+.github/workflows/sync-cloudflare.yml        daily, open a PR with any records added in Cloudflare by hand
+.github/workflows/check-cloudflare-drift.yml on every PR, fail if Cloudflare has records the PR would delete
+scripts/check-new-cloudflare-records.py      the logic behind that last check
 ```
 
 The files in `config/` are the complete desired state of each zone. Anything
@@ -142,6 +145,45 @@ hand edit them away.
   GitHub environment, so you can require a reviewer in the repo settings.
 - **Keep the nameservers out of the config.** Cloudflare manages the apex NS
   records itself and octoDNS does not touch them.
+
+## Records added in the Cloudflare dashboard
+
+`config/` is the complete desired state, so a record someone adds in the
+Cloudflare dashboard (including the "public hostname" tab of a Tunnel, which
+creates a CNAME) is deleted by the next apply. Two workflows catch this:
+
+- **Sync Cloudflare records** runs daily. If Cloudflare has changed, it dumps the
+  live zones into `config/` and opens one PR, `automation/sync-cloudflare`.
+  Review it and merge. It checks that the result plans no changes before opening
+  the PR, and it never pushes to `main`. You can also run it by hand from the
+  Actions tab.
+- **Cloudflare drift check** runs on every PR and is meant to be a required
+  status check (job name `drift`). It fails if Cloudflare has a record that is
+  not in `main` and that the PR does not add, and comments which ones. A record
+  the PR removes on purpose is not flagged. To clear it, merge the sync PR and
+  update your branch, or run `make dump`. It has no path filter on purpose, a
+  required check that is skipped never reports and blocks the PR. A PR that does
+  not touch `config/` finishes green in a few seconds without calling Cloudflare.
+
+To require it: repo Settings, Branches (or Rules), the rule for `main`, "Require
+status checks to pass", add `drift`.
+
+**The daily PR needs a token.** A pull request opened with the default Actions
+token does not start other workflows, so it would never get the required drift
+check and could not be merged. Create a fine-grained personal access token for
+this repo only (Contents and Pull requests, read and write), and save it as the
+repo secret `SYNC_PR_TOKEN`. The workflow uses it when present. Without it the
+workflow falls back to the default token, which also needs Settings, Actions,
+General, "Allow GitHub Actions to create and approve pull requests" (an org
+admin may have to enable that at the org level first).
+
+The drift check on a PR is a snapshot, so the apply workflow runs it again right
+before it writes to Cloudflare. If a record was added in the dashboard after the
+PR passed, the apply stops with the records listed as `unsynced` instead of
+deleting them. Merge the sync PR and re-run the apply. For a real emergency, such
+as reverting an outage while drift exists, run the apply workflow by hand from the
+Actions tab with `skip_drift_check` ticked. Anything unsynced is then deleted, so
+follow it up with a sync.
 
 ## Breaking glass
 

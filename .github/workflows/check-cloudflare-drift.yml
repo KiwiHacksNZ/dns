@@ -1,0 +1,145 @@
+name: Cloudflare drift check
+
+# Runs on every pull request. Read only: it never writes to Cloudflare. It fails
+# when Cloudflare has records that are not in the repo and that this PR does not
+# add, because merging would delete them.
+#
+# It is meant to be a REQUIRED status check, which is why it has no `paths`
+# filter. A required check that is skipped by a path filter never reports, and
+# the PR waits on it forever. Instead it always runs, and finishes green in a few
+# seconds when the PR does not touch DNS.
+#
+# It is different from the "DNS plan" workflow. That one shows what merging
+# changes. This one answers a narrower question: did someone change Cloudflare
+# by hand, and has this PR accounted for it? A record the PR removes on purpose
+# is not flagged.
+#
+# How: plan the base branch against live Cloudflare, and plan the PR against live
+# Cloudflare. A record that is live but missing from both is unsynced. See
+# scripts/check-new-cloudflare-records.py.
+#
+# To require it: Settings > Branches (or Rules) > the rule for main > Require
+# status checks to pass > add "drift".
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+    steps:
+      # Decide first, before spending time on checkouts and installs, whether
+      # this PR touches DNS at all.
+      - name: Does this PR touch DNS?
+        id: scope
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+            const dns = /^(config\/|config\.yaml$|scripts\/check-new-cloudflare-records\.py$|\.github\/workflows\/check-cloudflare-drift\.yml$)/;
+            const relevant = files.some((f) => dns.test(f.filename));
+            core.setOutput('relevant', relevant ? 'true' : 'false');
+            core.info(relevant
+              ? 'DNS files changed, running the check.'
+              : 'No DNS files changed, nothing to check.');
+
+      # The PR as it would look after merging.
+      - uses: actions/checkout@v4
+        if: steps.scope.outputs.relevant == 'true'
+
+      # What main says today, in its own folder so both can be planned.
+      - uses: actions/checkout@v4
+        if: steps.scope.outputs.relevant == 'true'
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - uses: actions/setup-python@v5
+        if: steps.scope.outputs.relevant == 'true'
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install octoDNS
+        if: steps.scope.outputs.relevant == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Plan the PR against Cloudflare
+        if: steps.scope.outputs.relevant == 'true'
+        run: octodns-sync --config-file ./config.yaml > head-plan.md
+
+      - name: Plan the base branch against Cloudflare
+        if: steps.scope.outputs.relevant == 'true'
+        working-directory: base
+        run: octodns-sync --config-file ./config.yaml > "$GITHUB_WORKSPACE/base-plan.md"
+
+      - name: Find Cloudflare records missing from the repo
+        if: steps.scope.outputs.relevant == 'true'
+        id: check
+        run: |
+          python3 scripts/check-new-cloudflare-records.py \
+            --base base-plan.md --head head-plan.md --out comment.md
+
+      - name: Comment the result on the PR
+        if: always() && steps.scope.outputs.relevant == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const MARKER = '<!-- cloudflare-drift -->';
+
+            let body;
+            try {
+              body = fs.readFileSync('comment.md', 'utf8').trim();
+            } catch (e) {
+              body = [
+                MARKER,
+                '### Cloudflare drift check failed to run',
+                '',
+                'No result was produced. Check the job log. Nothing has been changed in Cloudflare.',
+              ].join('\n');
+            }
+
+            // Update the existing comment rather than adding a new one on every
+            // push, so a PR with several revisions stays readable, and a red
+            // comment turns green once the drift is fixed.
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+
+      - name: Fail if Cloudflare has unsynced records
+        if: steps.check.outputs.found == 'true'
+        run: |
+          echo "::error::Cloudflare has records that are not in this branch. Merging would delete them. See the PR comment."
+          exit 1

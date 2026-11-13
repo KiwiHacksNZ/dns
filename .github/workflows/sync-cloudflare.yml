@@ -1,0 +1,98 @@
+name: Sync Cloudflare records
+
+# Runs daily. If someone added, changed or removed a record in the Cloudflare
+# dashboard, this dumps the live zones into config/ and opens a pull request so
+# the repo catches up. It never pushes to main and never writes to Cloudflare.
+#
+# Why it matters: config/ is the complete desired state, so a record that exists
+# in Cloudflare but not in config/ is deleted by the next apply. This turns
+# "someone added a DNS record by hand" from an outage into a PR to review.
+#
+# Which token opens the PR matters. A PR opened with the default Actions token
+# does not start any other workflow, so it never gets the "Cloudflare drift
+# check" and cannot merge once that check is required. Give it a fine-grained
+# personal access token (this repo only, Contents and Pull requests read and
+# write) as the secret SYNC_PR_TOKEN and the PR gets all its checks. Without that
+# secret it falls back to the default token, which also needs Settings > Actions
+# > General > "Allow GitHub Actions to create and approve pull requests".
+
+on:
+  schedule:
+    # 17:00 UTC, which is 6am in Auckland during daylight saving (5am otherwise).
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Never overlap with itself, and never run while an apply is in flight, so a
+# record that is mid-apply is not mistaken for drift.
+concurrency:
+  group: dns-apply
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install octoDNS
+        run: pip install -r requirements.txt
+
+      - name: Dump the live zones into config/
+        run: |
+          octodns-dump --config-file ./config.yaml --output-dir ./config kiwihacks.org. cloudflare
+          octodns-dump --config-file ./config.yaml --output-dir ./config kiwihacks.com. cloudflare
+
+      # The dump is only safe to propose if the repo now matches Cloudflare
+      # exactly. If a plan still wants to change something, the dump did not
+      # round trip cleanly, and merging it could change live DNS. Stop here and
+      # do not open a PR.
+      - name: Check the round trip is clean
+        run: |
+          octodns-sync --config-file ./config.yaml > plan.md
+          cat plan.md
+          if ! grep -q '^## No changes were planned' plan.md; then
+            echo "::error::The dumped config does not round trip cleanly, see the plan above. No PR was opened."
+            exit 1
+          fi
+
+      - name: Describe the change
+        run: |
+          {
+            echo "Cloudflare has records that the repo does not. This PR brings \`config/\` in line with the live zones."
+            echo
+            echo "Check each record is meant to be there, then merge. Merging runs the apply workflow, which should plan no changes to Cloudflare."
+            echo
+            echo "If a record should not exist, delete it in Cloudflare instead and close this PR. The next daily run will not recreate it."
+            echo
+            echo '```diff'
+            git diff -U1 -- config | head -200
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+
+      # Does nothing when the dump changed no files. When it did, it keeps a
+      # single PR on one branch and updates it each day instead of opening a
+      # new one, and closes it again if the drift goes away.
+      - name: Open or update the sync PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.SYNC_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: automation/sync-cloudflare
+          base: main
+          delete-branch: true
+          add-paths: config/**
+          commit-message: Sync new Cloudflare records into config
+          title: Sync new Cloudflare records into config
+          body-path: ${{ runner.temp }}/body.md
