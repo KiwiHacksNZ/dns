@@ -76,6 +76,14 @@ mdm:
   ttl: 300
   type: CNAME
   value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+mod-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
 nest:
   octodns:
     cloudflare:
@@ -108,6 +116,13 @@ panel-mc:
   ttl: 300
   type: CNAME
   value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
+play:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+  ttl: 300
+  type: A
+  value: 172.204.32.139
 podium-api-server-a:
   octodns:
     cloudflare:
