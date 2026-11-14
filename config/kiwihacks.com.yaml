@@ -68,6 +68,14 @@ jumbotron:
   ttl: 300
   type: CNAME
   value: cda4f5fa338598fa.vercel-dns-017.com.
+mcp-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
 mdm:
   octodns:
     cloudflare:
