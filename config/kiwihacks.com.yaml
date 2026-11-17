@@ -92,6 +92,14 @@ mdm:
   ttl: 300
   type: CNAME
   value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+mesh-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 7e06b207-ecae-434f-8df2-cca54cbd8cc5.cfargotunnel.com.
 nest:
   octodns:
     cloudflare:
