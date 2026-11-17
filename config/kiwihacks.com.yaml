@@ -54,6 +54,14 @@ beacons-infra:
   ttl: 300
   type: CNAME
   value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
+control-mc:
+  octodns:
+    cloudflare:
+      auto-ttl: true
+      proxied: true
+  ttl: 300
+  type: CNAME
+  value: 7e06b207-ecae-434f-8df2-cca54cbd8cc5.cfargotunnel.com.
 google._domainkey:
   octodns:
     cloudflare:
@@ -75,7 +83,7 @@ mcp-mc:
       proxied: true
   ttl: 300
   type: CNAME
-  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
+  value: 7e06b207-ecae-434f-8df2-cca54cbd8cc5.cfargotunnel.com.
 mdm:
   octodns:
     cloudflare:
@@ -84,14 +92,6 @@ mdm:
   ttl: 300
   type: CNAME
   value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
-mod-mc:
-  octodns:
-    cloudflare:
-      auto-ttl: true
-      proxied: true
-  ttl: 300
-  type: CNAME
-  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
 nest:
   octodns:
     cloudflare:
@@ -108,22 +108,6 @@ nocodb-infra:
   ttl: 300
   type: CNAME
   value: 6f219237-9a2f-4037-ba41-4974178d1eee.cfargotunnel.com.
-node-mc:
-  octodns:
-    cloudflare:
-      auto-ttl: true
-      proxied: true
-  ttl: 300
-  type: CNAME
-  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
-panel-mc:
-  octodns:
-    cloudflare:
-      auto-ttl: true
-      proxied: true
-  ttl: 300
-  type: CNAME
-  value: 5d65e255-f572-4746-81a9-577e3c7639de.cfargotunnel.com.
 play:
   octodns:
     cloudflare:
